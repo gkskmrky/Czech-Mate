@@ -1,13 +1,2 @@
-/* =============================================================
-   SUPABASE CONFIG
-   -------------------------------------------------------------
-   HOW TO SET UP (one time):
-   1. Go to supabase.com → sign in → open your project.
-   2. Click "Project Settings" (gear icon) → "API".
-   3. Copy the "Project URL" and paste below.
-   4. Copy the "anon public" key and paste below.
-   That's it!
-   ============================================================= */
-
 const SUPABASE_URL = "https://wjifojmrjxgbhhseqqld.supabase.co";
-const SUPABASE_KEY = "sb_publishable_hC2758wga-m4Go_xW5Q4og_mCXCCJW6";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqaWZvam1yanhnYmhoc2VxcWxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwMjg4NjUsImV4cCI6MjEwMjYwNDg2NX0.i4Y28pEWx5mSyO39U6m9G-BjF-RYcAntiGKS0mwNxSg";
