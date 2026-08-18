@@ -57,21 +57,27 @@ function pointsFor(cardId) {
 }
 
 // ---------- Supabase leaderboard ----------
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let supabase = null;
+try {
+  if (typeof SUPABASE_URL !== "undefined" && SUPABASE_URL && !SUPABASE_URL.includes("YOUR_")) {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  }
+} catch (e) { console.warn("Supabase init failed:", e); }
 
 async function apiLoadPlayer(name) {
+  if (!supabase) return;
   try {
     const { data } = await supabase.from("players").select("*").eq("name", name).single();
     if (data) {
       State.points = data.points || 0;
       State.mastered = new Set(data.mastered || []);
     }
-  } catch (e) { /* offline or first time: keep defaults */ }
+  } catch (e) { console.warn("apiLoadPlayer:", e); }
 }
 
 async function apiScore(cardId, pts) {
+  if (!supabase) return;
   try {
-    // Upsert: create the row if it doesn't exist, update if it does.
     const { data: existing } = await supabase.from("players").select("*").eq("name", State.name).single();
     if (existing) {
       const mastered = existing.mastered || [];
@@ -87,10 +93,11 @@ async function apiScore(cardId, pts) {
         mastered: cardId ? [cardId] : []
       });
     }
-  } catch (e) { /* offline: ignore */ }
+  } catch (e) { console.warn("apiScore:", e); }
 }
 
 async function apiLeaderboard() {
+  if (!supabase) return [{ name: State.name, points: State.points, mastered: State.mastered.size }];
   try {
     const { data } = await supabase.from("players").select("*").order("points", { ascending: false });
     return (data || []).map(p => ({ name: p.name, points: p.points || 0, mastered: (p.mastered || []).length }));
