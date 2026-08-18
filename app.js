@@ -57,17 +57,17 @@ function pointsFor(cardId) {
 }
 
 // ---------- Supabase leaderboard ----------
-let supabase = null;
+let db = null;
 try {
   if (typeof SUPABASE_URL !== "undefined" && SUPABASE_URL && !SUPABASE_URL.includes("YOUR_")) {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   }
 } catch (e) { console.warn("Supabase init failed:", e); }
 
 async function apiLoadPlayer(name) {
-  if (!supabase) return;
+  if (!db) return;
   try {
-    const { data } = await supabase.from("players").select("*").eq("name", name).single();
+    const { data } = await db.from("players").select("*").eq("name", name).single();
     if (data) {
       State.points = data.points || 0;
       State.mastered = new Set(data.mastered || []);
@@ -76,18 +76,18 @@ async function apiLoadPlayer(name) {
 }
 
 async function apiScore(cardId, pts) {
-  if (!supabase) return;
+  if (!db) return;
   try {
-    const { data: existing } = await supabase.from("players").select("*").eq("name", State.name).single();
+    const { data: existing } = await db.from("players").select("*").eq("name", State.name).single();
     if (existing) {
       const mastered = existing.mastered || [];
       if (cardId && !mastered.includes(cardId)) mastered.push(cardId);
-      await supabase.from("players").update({
+      await db.from("players").update({
         points: (existing.points || 0) + (pts || 0),
         mastered: mastered
       }).eq("name", State.name);
     } else {
-      await supabase.from("players").insert({
+      await db.from("players").insert({
         name: State.name,
         points: pts || 0,
         mastered: cardId ? [cardId] : []
@@ -97,9 +97,9 @@ async function apiScore(cardId, pts) {
 }
 
 async function apiLeaderboard() {
-  if (!supabase) return [{ name: State.name, points: State.points, mastered: State.mastered.size }];
+  if (!db) return [{ name: State.name, points: State.points, mastered: State.mastered.size }];
   try {
-    const { data } = await supabase.from("players").select("*").order("points", { ascending: false });
+    const { data } = await db.from("players").select("*").order("points", { ascending: false });
     return (data || []).map(p => ({ name: p.name, points: p.points || 0, mastered: (p.mastered || []).length }));
   } catch (e) { return [{ name: State.name, points: State.points, mastered: State.mastered.size }]; }
 }
