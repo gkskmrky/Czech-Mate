@@ -1,0 +1,17 @@
+{
+  "name": "Czech Mate",
+  "short_name": "Czech Mate",
+  "description": "Learn Czech with flashcards, quizzes and a leaderboard",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#11457e",
+  "theme_color": "#11457e",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

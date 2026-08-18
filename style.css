@@ -1,0 +1,279 @@
+:root {
+  --cz-blue: #11457e;
+  --cz-red: #d7141a;
+  --bg: #f4f7fb;
+  --card: #ffffff;
+  --text: #1a2233;
+  --muted: #6b7688;
+  --accent: #11457e;
+  --accent-soft: #e6eefb;
+  --good: #2e9e5b;
+  --bad: #d7141a;
+  --shadow: 0 6px 20px rgba(17, 69, 126, 0.12);
+  --radius: 18px;
+}
+[data-theme="dark"] {
+  --bg: #0e1420;
+  --card: #182234;
+  --text: #eef2f8;
+  --muted: #9aa7bd;
+  --accent: #5b9bff;
+  --accent-soft: #1e2c44;
+  --shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overscroll-behavior: none;
+}
+.hidden { display: none !important; }
+
+/* ---------- Name gate ---------- */
+.gate {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(160deg, var(--cz-blue), #0a2a4f);
+  padding: 24px; z-index: 50;
+}
+.gate-card {
+  background: var(--card); color: var(--text);
+  border-radius: 24px; padding: 32px 24px; width: 100%; max-width: 380px;
+  text-align: center; box-shadow: var(--shadow);
+}
+.gate .flag { font-size: 56px; }
+.gate h1 { margin: 8px 0 4px; font-size: 28px; }
+.gate p { color: var(--muted); margin: 4px 0 20px; }
+.gate input {
+  width: 100%; padding: 14px 16px; font-size: 17px;
+  border: 2px solid var(--accent-soft); border-radius: 14px;
+  background: var(--bg); color: var(--text); margin-bottom: 14px;
+}
+.gate input:focus { outline: none; border-color: var(--accent); }
+.gate-hint { font-size: 13px; margin-top: 16px; }
+
+/* ---------- Buttons ---------- */
+.btn-primary {
+  width: 100%; padding: 14px; font-size: 17px; font-weight: 700;
+  color: #fff; background: var(--accent); border: none;
+  border-radius: 14px; cursor: pointer; transition: transform .1s;
+}
+.btn-primary:active { transform: scale(0.97); }
+.btn-ghost {
+  padding: 10px 16px; font-size: 15px; font-weight: 600;
+  background: var(--accent-soft); color: var(--accent);
+  border: none; border-radius: 12px; cursor: pointer;
+}
+.icon-btn {
+  background: transparent; border: none; font-size: 22px; cursor: pointer;
+}
+
+/* ---------- Topbar ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; background: var(--card); box-shadow: var(--shadow);
+}
+.brand { font-weight: 800; font-size: 18px; }
+.brand span { color: var(--accent); }
+/* Reliable CSS Czech flag (renders the same on every device) */
+.cz-flag {
+  display: inline-block; width: 26px; height: 18px; border-radius: 3px;
+  vertical-align: -3px; overflow: hidden; position: relative;
+  background: linear-gradient(to bottom, #fff 0 50%, #d7141a 50% 100%);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.08);
+}
+.cz-flag::before {
+  content: ""; position: absolute; left: 0; top: 0;
+  border-style: solid; border-width: 9px 13px;
+  border-color: transparent transparent transparent #11457e;
+}
+.cz-flag-big {
+  width: 84px; height: 56px; border-radius: 8px; vertical-align: middle;
+}
+.cz-flag-big::before { border-width: 28px 42px; }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.points-badge {
+  background: linear-gradient(135deg, #ffb347, #ffcc33);
+  color: #5a3d00; font-weight: 800; padding: 6px 12px; border-radius: 999px; font-size: 14px;
+}
+.level-badge {
+  background: var(--accent-soft); color: var(--accent);
+  font-weight: 700; padding: 6px 10px; border-radius: 999px; font-size: 12px;
+}
+
+/* ---------- Layout ---------- */
+main { padding: 16px; padding-bottom: 90px; max-width: 640px; margin: 0 auto; }
+h2.screen-title { font-size: 22px; margin: 4px 0 16px; }
+.subtle { color: var(--muted); font-size: 14px; }
+
+/* ---------- Tabbar ---------- */
+.tabbar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 30;
+  display: flex; background: var(--card); box-shadow: 0 -4px 20px rgba(0,0,0,.08);
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+}
+.tab {
+  flex: 1; background: none; border: none; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  font-size: 20px; color: var(--muted); padding: 6px 0; border-radius: 12px;
+}
+.tab span { font-size: 10px; font-weight: 600; }
+.tab.active { color: var(--accent); background: var(--accent-soft); }
+
+/* ---------- Generic cards ---------- */
+.card {
+  background: var(--card); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 18px; margin-bottom: 14px;
+}
+.card h3 { margin: 0 0 8px; }
+
+/* Home tiles */
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.tile {
+  background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 18px; text-align: center; cursor: pointer; transition: transform .1s;
+  border: none; color: var(--text);
+}
+.tile:active { transform: scale(0.97); }
+.tile .emoji { font-size: 34px; }
+.tile .label { font-weight: 700; margin-top: 6px; }
+.tile .sub { font-size: 12px; color: var(--muted); }
+
+/* Lesson picker chips */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.chip {
+  padding: 8px 14px; border-radius: 999px; border: 2px solid var(--accent-soft);
+  background: var(--card); color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* Progress ring / bar */
+.progress-wrap { background: var(--accent-soft); border-radius: 999px; height: 12px; overflow: hidden; }
+.progress-bar { height: 100%; background: linear-gradient(90deg, var(--good), #59d98a); width: 0; transition: width .4s; }
+
+/* ---------- Flashcard ---------- */
+.flashcard {
+  perspective: 1200px; height: 260px; margin-bottom: 16px; cursor: pointer;
+}
+.flashcard-inner {
+  position: relative; width: 100%; height: 100%;
+  transition: transform .5s; transform-style: preserve-3d;
+}
+.flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+.flashcard-face {
+  position: absolute; inset: 0; backface-visibility: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: var(--card); border-radius: 22px; box-shadow: var(--shadow); padding: 20px; text-align: center;
+}
+.flashcard-face .word { font-size: 34px; font-weight: 800; }
+.flashcard-face .note { color: var(--muted); margin-top: 10px; font-size: 14px; }
+.flashcard-face .side-label { position: absolute; top: 14px; font-size: 12px; color: var(--muted); }
+.flashcard-back { transform: rotateY(180deg); background: var(--accent-soft); }
+.row { display: flex; gap: 10px; }
+.row > * { flex: 1; }
+
+/* ---------- Quiz / typing options ---------- */
+.prompt { font-size: 26px; font-weight: 800; text-align: center; margin: 8px 0 4px; }
+.prompt-sub { text-align: center; color: var(--muted); margin-bottom: 18px; }
+.option {
+  display: block; width: 100%; text-align: left; padding: 15px 18px; margin-bottom: 10px;
+  background: var(--card); border: 2px solid var(--accent-soft); border-radius: 14px;
+  font-size: 16px; color: var(--text); cursor: pointer; transition: .15s;
+}
+.option:active { transform: scale(0.99); }
+.option.correct { background: #e5f7ec; border-color: var(--good); color: #14663a; }
+.option.wrong { background: #fde8e9; border-color: var(--bad); color: #8c1015; }
+[data-theme="dark"] .option.correct { background: #14351f; }
+[data-theme="dark"] .option.wrong { background: #3a1416; }
+
+.type-input {
+  width: 100%; padding: 15px 16px; font-size: 20px; text-align: center;
+  border: 2px solid var(--accent-soft); border-radius: 14px; background: var(--bg); color: var(--text);
+}
+.type-input:focus { outline: none; border-color: var(--accent); }
+.hint-line {
+  text-align: center; font-size: 24px; letter-spacing: 2px; color: var(--muted);
+  margin: 10px 0; min-height: 30px; font-family: monospace;
+}
+.hint-line b { color: var(--accent); }
+.feedback { text-align: center; font-weight: 700; margin: 14px 0; min-height: 24px; }
+.feedback.good { color: var(--good); }
+.feedback.bad { color: var(--bad); }
+
+/* ---------- Match game ---------- */
+.match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.match-item {
+  padding: 16px 10px; border-radius: 14px; background: var(--card); box-shadow: var(--shadow);
+  text-align: center; font-weight: 600; cursor: pointer; font-size: 15px; border: 2px solid transparent;
+}
+.match-item.sel { border-color: var(--accent); background: var(--accent-soft); }
+.match-item.done { opacity: .35; pointer-events: none; }
+.match-item.bad { border-color: var(--bad); animation: shake .3s; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+/* ---------- Leaderboard ---------- */
+.champ-banner {
+  text-align: center; padding: 22px 16px; margin-bottom: 16px; border-radius: 20px;
+  background: linear-gradient(135deg, #ffd54a, #ff9f1c);
+  color: #5a3d00; box-shadow: var(--shadow); position: relative; overflow: hidden;
+  animation: pop .5s ease;
+}
+.champ-banner::after {
+  content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: linear-gradient(120deg, transparent 40%, rgba(255,255,255,.5) 50%, transparent 60%);
+  animation: shine 3s linear infinite;
+}
+@keyframes shine { to { transform: translateX(50%); } }
+.champ-crown { font-size: 44px; animation: bob 2s ease-in-out infinite; }
+@keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+.champ-name { font-size: 24px; font-weight: 800; }
+.champ-sub { font-weight: 600; opacity: .8; margin-top: 2px; }
+@keyframes pop { from { transform: scale(.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.rank-row {
+  display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+  background: var(--card); border-radius: 14px; box-shadow: var(--shadow); margin-bottom: 10px;
+  opacity: 0; animation: slidein .4s ease forwards;
+}
+@keyframes slidein { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: translateX(0); } }
+.rank-row .medal { font-size: 24px; width: 34px; text-align: center; flex-shrink: 0; }
+.rank-main { flex: 1; min-width: 0; }
+.rank-row .rname { font-weight: 700; }
+.rank-row .rpts { font-weight: 800; color: var(--accent); text-align: right; flex-shrink: 0; }
+.rank-row.me { border: 2px solid var(--accent); }
+.rank-row.gold { background: linear-gradient(135deg, #fff8e1, var(--card)); }
+.rank-row.silver { background: linear-gradient(135deg, #f2f4f7, var(--card)); }
+.rank-row.bronze { background: linear-gradient(135deg, #fbeee0, var(--card)); }
+[data-theme="dark"] .rank-row.gold { background: linear-gradient(135deg, #3a3320, var(--card)); }
+[data-theme="dark"] .rank-row.silver { background: linear-gradient(135deg, #2a2f38, var(--card)); }
+[data-theme="dark"] .rank-row.bronze { background: linear-gradient(135deg, #35291d, var(--card)); }
+.rank-bar-wrap { background: var(--accent-soft); border-radius: 999px; height: 7px; margin-top: 6px; overflow: hidden; }
+.rank-bar { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #ffb347, #ffcc33); width: 0; transition: width .8s ease; }
+
+/* ---------- Badges ---------- */
+.badges { display: flex; flex-wrap: wrap; gap: 10px; }
+.badge {
+  display: flex; flex-direction: column; align-items: center; width: 74px; text-align: center;
+}
+.badge .b-emoji { font-size: 30px; filter: grayscale(1); opacity: .4; }
+.badge.earned .b-emoji { filter: none; opacity: 1; }
+.badge .b-name { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+/* ---------- Done screen ---------- */
+.done {
+  text-align: center; padding: 40px 20px;
+}
+.done .big { font-size: 60px; }
+.done h2 { margin: 12px 0 6px; }
+
+/* Confetti */
+#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 60; }
+
+/* small helpers */
+.center { text-align: center; }
+.mt { margin-top: 16px; }
+.pill { display:inline-block; background: var(--accent-soft); color: var(--accent); padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight:600; }

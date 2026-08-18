@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#11457e" />
+  <title>Czech Mate 🇨🇿</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-theme="light">
+  <!-- Name gate -->
+  <div id="name-gate" class="gate">
+    <div class="gate-card">
+      <div class="flag"><span class="cz-flag cz-flag-big"></span></div>
+      <h1>Czech Mate</h1>
+      <p>Learn Czech, earn points, beat your friend!</p>
+      <input id="name-input" type="text" placeholder="Type your name…" maxlength="20" autocomplete="off" />
+      <button id="name-go" class="btn-primary">Let's go! 🚀</button>
+      <p class="gate-hint">Pick your own name so the leaderboard knows who's who. 🏆</p>
+    </div>
+  </div>
+
+  <!-- App -->
+  <div id="app" class="hidden">
+    <header class="topbar">
+      <div class="brand"><span class="cz-flag"></span> <span>Czech Mate</span></div>
+      <div class="topbar-right">
+        <span class="points-badge" id="points-badge">✨ 0</span>
+        <span class="level-badge" id="level-badge">Začátečník</span>
+        <button id="theme-toggle" class="icon-btn" title="Toggle theme">🌙</button>
+      </div>
+    </header>
+
+    <main id="screen"></main>
+
+    <nav class="tabbar">
+      <button data-screen="home" class="tab active">🏠<span>Home</span></button>
+      <button data-screen="flashcards" class="tab">🃏<span>Cards</span></button>
+      <button data-screen="quiz" class="tab">❓<span>Quiz</span></button>
+      <button data-screen="grammar" class="tab">📖<span>Grammar</span></button>
+      <button data-screen="rank" class="tab">🏆<span>Rank</span></button>
+    </nav>
+  </div>
+
+  <!-- Confetti canvas -->
+  <canvas id="confetti"></canvas>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
