@@ -764,6 +764,52 @@ function nextGrammarQ() {
   }
 }
 
+// ---------- Dictionary (searchable, alphabetical) ----------
+// Build a de-duplicated, sorted word list once from ALL_CARDS.
+const DICT = (() => {
+  const seen = new Map();
+  ALL_CARDS.forEach(c => {
+    const key = c.cz.toLowerCase() + "|" + c.en.toLowerCase();
+    if (!seen.has(key)) {
+      seen.set(key, { cz: c.cz, en: c.en, note: c.note, lessons: new Set([c.lessonTitle]) });
+    } else {
+      seen.get(key).lessons.add(c.lessonTitle);
+    }
+  });
+  return [...seen.values()].sort((a, b) =>
+    a.cz.localeCompare(b.cz, "cs", { sensitivity: "base" }));
+})();
+
+let dictQuery = "";
+function renderDict() {
+  screenEl().innerHTML = `<h2 class="screen-title">📚 Dictionary</h2>
+    <input class="dict-search" id="dict-search" type="search" placeholder="🔍 Search Czech or English…" value="${dictQuery.replace(/"/g, "&quot;")}" autocomplete="off" />
+    <div class="subtle center" id="dict-count" style="margin:8px 0"></div>
+    <div id="dict-list"></div>`;
+  const input = $("#dict-search");
+  input.oninput = () => { dictQuery = input.value; drawDictList(); };
+  drawDictList();
+  input.focus();
+  // keep cursor at end
+  const v = input.value; input.value = ""; input.value = v;
+}
+function drawDictList() {
+  const q = normalize(dictQuery);
+  const results = !q ? DICT : DICT.filter(d =>
+    normalize(d.cz).includes(q) || normalize(d.en).includes(q));
+  $("#dict-count").textContent = `${results.length} word${results.length === 1 ? "" : "s"}${q ? " found" : ""}`;
+  if (!results.length) {
+    $("#dict-list").innerHTML = `<div class="card center subtle">No words match "${dictQuery}". Try Czech or English.</div>`;
+    return;
+  }
+  $("#dict-list").innerHTML = results.map(d => `
+    <div class="dict-row">
+      <div class="dict-cz">${d.cz}</div>
+      <div class="dict-en">${d.en}</div>
+      ${d.note ? `<div class="dict-note">${d.note}</div>` : ""}
+    </div>`).join("");
+}
+
 // ---------- Leaderboard ----------
 async function renderRank() {
   screenEl().innerHTML = `<h2 class="screen-title">🏆 Leaderboard</h2><div id="rank-body" class="subtle center">Loading…</div>`;
@@ -816,7 +862,7 @@ async function renderRank() {
 // Router / navigation
 // =============================================================
 function render() {
-  const map = { home: renderHome, flashcards: renderFlashcards, quiz: renderQuiz, typing: renderTyping, match: renderMatch, sentences: renderSentences, grammar: renderGrammar, rank: renderRank };
+  const map = { home: renderHome, flashcards: renderFlashcards, quiz: renderQuiz, typing: renderTyping, match: renderMatch, sentences: renderSentences, grammar: renderGrammar, dict: renderDict, rank: renderRank };
   (map[State.screen] || renderHome)();
 }
 function go(screen) {
