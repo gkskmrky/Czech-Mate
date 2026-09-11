@@ -1064,6 +1064,87 @@ const LESSONS = [
       { title: "Means of transport (instrumental)", note: "Sit INSIDE → bare instrumental: autem, vlakem, letadlem, lodí, metrem, autobusem, tramvají. Sit ON TOP → na + locative: na kole, na motorce, na koni. On foot = pěšky." },
       { title: "od…do with dates", note: "od + genitive … do + genitive = 'from … to …' for time ranges. Ordinal dates take genitive: Mám volno od 1. do 5. května (od prvního do pátého května)." }
     ]
+  },
+
+  /* ---------------------------------------------------------- */
+  {
+    id: "lesson11",
+    title: "Lesson 11 — Health, Illness & At the Doctor",
+    emoji: "🏥",
+    vocab: [
+      { cz: "hlava", en: "head", note: "F; pl. hlavy" },
+      { cz: "vlasy", en: "hair", note: "M pl." },
+      { cz: "oko", en: "eye", note: "N; pl. oči (irregular)" },
+      { cz: "ucho", en: "ear", note: "N; pl. uši (irregular)" },
+      { cz: "ústa", en: "mouth", note: "N pl.; also pusa" },
+      { cz: "krk", en: "neck / throat", note: "M" },
+      { cz: "rameno", en: "shoulder", note: "N; pl. ramena" },
+      { cz: "ruka", en: "hand / arm", note: "F; pl. ruce (irregular)" },
+      { cz: "břicho", en: "belly / stomach", note: "N" },
+      { cz: "záda", en: "back", note: "N pl." },
+      { cz: "koleno", en: "knee", note: "N; pl. kolena" },
+      { cz: "noha", en: "leg / foot", note: "F; pl. nohy" },
+      { cz: "zub", en: "tooth", note: "M; pl. zuby" },
+      { cz: "nos", en: "nose", note: "M" },
+      { cz: "nemocný", en: "ill / sick", note: "nemocná (F)" },
+      { cz: "teplota", en: "temperature", note: "F; zvýšená teplota = raised" },
+      { cz: "horečka", en: "fever", note: "F" },
+      { cz: "rýma", en: "runny nose / head cold", note: "F" },
+      { cz: "kašel", en: "cough", note: "M" },
+      { cz: "angína", en: "tonsillitis / strep throat", note: "F" },
+      { cz: "průjem", en: "diarrhoea", note: "M" },
+      { cz: "alergie", en: "allergy", note: "F; alergie na + acc." },
+      { cz: "bolet", en: "to hurt", note: "bolí = hurts" },
+      { cz: "zlomený", en: "broken", note: "zlomená (F)" },
+      { cz: "je mi špatně", en: "to feel unwell", note: "" },
+      { cz: "apendicitida", en: "appendicitis", note: "F" },
+      { cz: "doktor", en: "doctor", note: "doktorka (F)" },
+      { cz: "sestra", en: "nurse", note: "F" },
+      { cz: "ordinace", en: "surgery / consulting room", note: "F; zubní ordinace" },
+      { cz: "objednat se", en: "to make an appointment", note: "objednat se k + dative" },
+      { cz: "recept", en: "prescription / recipe", note: "M" },
+      { cz: "prášky", en: "pills", note: "also tablety" },
+      { cz: "kapky", en: "drops", note: "pl." },
+      { cz: "injekce", en: "injection / shot", note: "F" },
+      { cz: "náplast", en: "plaster / band-aid", note: "F" },
+      { cz: "sádra", en: "plaster cast", note: "F; noha v sádře" },
+      { cz: "antibiotika", en: "antibiotics", note: "N pl." },
+      { cz: "brát", en: "to take (medicine)", note: "brát léky" },
+      { cz: "odložit si", en: "to take off (clothes)", note: "" },
+      { cz: "lehnout si", en: "to lie down", note: "Lehněte si." },
+      { cz: "otevřít ústa", en: "to open one's mouth", note: "" },
+      { cz: "zdravotní pojištění", en: "health insurance", note: "N" },
+      { cz: "kontrola", en: "check-up", note: "F; na kontrolu" },
+      { cz: "nemocnice", en: "hospital", note: "F" },
+      { cz: "sanitka", en: "ambulance", note: "F" },
+      { cz: "nesmět", en: "must not / not be allowed", note: "opposite of muset" },
+      { cz: "hasiči", en: "firefighters", note: "M pl.; 150" },
+      { cz: "záchranná služba", en: "ambulance / medical rescue", note: "F; 155 (záchranka)" },
+      { cz: "policie", en: "police", note: "F; 158" },
+      { cz: "Hoří!", en: "Fire! (it's burning)", note: "" },
+      { cz: "pomoc", en: "help", note: "F; pomoct = to help" },
+      { cz: "Co se stalo?", en: "What happened?", note: "" }
+    ],
+    phrases: [
+      { cz: "Je mi špatně.", en: "I feel unwell." },
+      { cz: "Bolí mě hlava.", en: "My head hurts." },
+      { cz: "Bolí mě v krku.", en: "I have a sore throat." },
+      { cz: "Mám zvýšenou teplotu.", en: "I have a raised temperature." },
+      { cz: "Mám alergii na penicilin.", en: "I'm allergic to penicillin." },
+      { cz: "Co vás bolí?", en: "What hurts? (formal)" },
+      { cz: "Odložte si a lehněte si.", en: "Take off your things and lie down." },
+      { cz: "Musíte brát antibiotika.", en: "You have to take antibiotics." },
+      { cz: "Chtěla bych se objednat k doktorovi.", en: "I'd like to make an appointment with the doctor." },
+      { cz: "Vykradli mi byt!", en: "My flat was burgled!" }
+    ],
+    grammar: [
+      { title: "Je mi / ti / mu / jí (how you feel)", note: "Feelings & states use je + DATIVE pronoun + adverb ('it is to-me…'). mi/ti/mu/jí/nám/vám/jim. Je mi špatně. Je ti zima? Je mu líp. Same as age (je mi 30 let). The adverb never changes." },
+      { title: "mít + symptom (accusative)", note: "'Have' an illness → mít + accusative. Feminine -a → -u (teplota → teplotu); adjective agrees (zvýšená → zvýšenou). Mám zvýšenou teplotu. Mám horečku. Masculine kašel/průjem don't change: Mám kašel." },
+      { title: "Bolí mě… (what hurts)", note: "bolet = to hurt. The body part is the SUBJECT; the person is ACCUSATIVE (mě, tě, ho, ji, nás, vás, je). Bolí mě hlava. Bolí mě zub. Bolí mě nohy (plural)." },
+      { title: "je mi (dative) vs bolí mě (accusative)", note: "General feeling → dative: Je mi špatně. Specific part hurts → accusative: Bolí mě hlava. Note the pronoun: mi (feeling) vs mě (hurting)." },
+      { title: "Irregular plural body parts", note: "Paired parts are irregular: oko→oči, ucho→uši, ruka→ruce, noha→nohy. Máme dvě ruce a dvě nohy. Mám zlomenou ruku (accusative singular)." },
+      { title: "Emergency numbers", note: "112 = general EU emergency; 150 = hasiči (fire); 155 = záchranná služba (ambulance); 158 = policie. Hoří! Musíme zavolat hasiče. Ukradli mi auto! nesmět = must not (Nesmíte pít mléko)." }
+    ]
   }
 ];
 
@@ -1172,7 +1253,17 @@ const GRAMMAR_EXERCISES = [
   { lessonId: "lesson10", type: "mc", q: "changing metro lines (noun) = ___", a: "přestup", options: ["přestup", "nástup", "výstup", "příjezd"], hint: "pře- = across/change → přestup." },
   { lessonId: "lesson10", type: "mc", q: "Jedu ___. (by car)", a: "autem", options: ["autem", "na autě", "auto", "do auta"], hint: "Sit inside → bare instrumental: autem." },
   { lessonId: "lesson10", type: "mc", q: "Jedu ___. (by bike)", a: "na kole", options: ["na kole", "kolem", "kolo", "do kola"], hint: "Sit on top → na + locative: na kole." },
-  { lessonId: "lesson10", type: "blank", q: "Mám volno ___ 1. do 5. května. (from…to)", a: "od", hint: "od + genitive … do + genitive = from … to." }
+  { lessonId: "lesson10", type: "blank", q: "Mám volno ___ 1. do 5. května. (from…to)", a: "od", hint: "od + genitive … do + genitive = from … to." },
+
+  // ---- Lesson 11: feelings (dative), symptoms (accusative), bolí ----
+  { lessonId: "lesson11", type: "mc", q: "___ špatně. (I feel unwell)", a: "Je mi", options: ["Je mi", "Bolí mě", "Jsem", "Mám"], hint: "Feelings use je + dative: Je mi špatně." },
+  { lessonId: "lesson11", type: "mc", q: "___ hlava. (My head hurts)", a: "Bolí mě", options: ["Bolí mě", "Je mi", "Mám", "Jsem"], hint: "What hurts: bolí + accusative (mě)." },
+  { lessonId: "lesson11", type: "mc", q: "Mám zvýšenou ___. (temperature — accusative)", a: "teplotu", options: ["teplotu", "teplota", "teploty", "teplotou"], hint: "mít + accusative; feminine -a → -u." },
+  { lessonId: "lesson11", type: "mc", q: "Mám zlomenou ___. (broken arm — accusative)", a: "ruku", options: ["ruku", "ruka", "ruce", "rukou"], hint: "Accusative singular: ruka → ruku." },
+  { lessonId: "lesson11", type: "mc", q: "Máte ___ něco alergii? (allergy to something)", a: "na", options: ["na", "o", "do", "k"], hint: "alergie na + accusative." },
+  { lessonId: "lesson11", type: "mc", q: "ucho → plural = ___ (irregular)", a: "uši", options: ["uši", "ucha", "uchy", "ouši"], hint: "Irregular paired body part: ucho → uši." },
+  { lessonId: "lesson11", type: "blank", q: "Hoří! Musíme zavolat ___. (firefighters — accusative)", a: "hasiče", hint: "hasiči → zavolat hasiče." },
+  { lessonId: "lesson11", type: "blank", q: "Chtěla bych se ___ k doktorovi. (make an appointment)", a: "objednat", hint: "objednat se k + dative." }
 ];
 
 /* Expose to the browser */
