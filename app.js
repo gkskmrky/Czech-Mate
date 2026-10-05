@@ -276,16 +276,17 @@ const confetti = celebrate;
 
 // ---------- Lesson chips ----------
 function lessonChips() {
-  const chips = [`<button class="chip ${State.lesson === "all" ? "active" : ""}" data-lesson="all">All 🌍</button>`]
+  const opts = [`<option value="all" ${State.lesson === "all" ? "selected" : ""}>🌍 All lessons</option>`]
     .concat(LESSONS.map(l =>
-      `<button class="chip ${State.lesson === l.id ? "active" : ""}" data-lesson="${l.id}">${l.emoji} ${l.title.split("—")[0].trim()}</button>`));
-  return `<div class="chips">${chips.join("")}</div>`;
+      `<option value="${l.id}" ${State.lesson === l.id ? "selected" : ""}>${l.emoji} ${l.title.split("—")[0].trim()}</option>`));
+  return `<div class="lesson-picker">
+    <label class="lesson-picker-label">Lesson:</label>
+    <select class="lesson-select" id="lesson-select">${opts.join("")}</select>
+  </div>`;
 }
 function bindChips() {
-  screenEl().querySelectorAll(".chip[data-lesson]").forEach(c => c.onclick = () => {
-    State.lesson = c.dataset.lesson;
-    render();
-  });
+  const sel = screenEl().querySelector("#lesson-select");
+  if (sel) sel.onchange = () => { State.lesson = sel.value; render(); };
 }
 
 // "You did everything" check for an activity's card pool
