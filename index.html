@@ -2,10 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#11457e" />
   <title>Czech Mate 🇨🇿</title>
   <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-title" content="Czech Mate" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body data-theme="light">
@@ -28,7 +30,7 @@
       <div class="topbar-right">
         <span class="points-badge" id="points-badge">✨ 0</span>
         <span class="level-badge" id="level-badge">Začátečník</span>
-        <button id="theme-toggle" class="icon-btn" title="Toggle theme">🌙</button>
+        <button id="theme-toggle" class="icon-btn" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
       </div>
     </header>
 
@@ -47,7 +49,7 @@
   <!-- Confetti canvas -->
   <canvas id="confetti"></canvas>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js"></script>
   <script src="supabase-config.js"></script>
   <script src="data.js"></script>
   <script src="app.js"></script>
