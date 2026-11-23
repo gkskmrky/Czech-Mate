@@ -280,7 +280,9 @@ function award(cardId, forcePts) {
   State.answered.add(cardId);
   recordResult(cardId, true);
   updateTopbar();
+  bumpPoints();
   apiScore(cardId, pts);
+  checkMilestones();
   return { pts, wasNew };
 }
 
@@ -341,7 +343,54 @@ function updateTopbar() {
   $("#level-badge").textContent = currentLevel().name;
 }
 
-// ---------- Celebrations (varied) ----------
+// ---------- Feedback effects ----------
+// Every correct answer gets a QUIET confirmation: a green pop with a ✓, a small "+10" that floats
+// up, and a bump on the points badge. Big full-screen celebrations are saved for milestones
+// (new badge, new level, a great test result, taking 1st place) and can be switched off.
+const reducedMotion = () => !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+function celebrationsOn() {
+  const v = localStorage.getItem("cz_celebrate");
+  return v ? v === "on" : !reducedMotion();   // phones set to "reduce motion" start with celebrations off
+}
+function setCelebrations(on) {
+  try { localStorage.setItem("cz_celebrate", on ? "on" : "off"); } catch (e) { /* storage blocked: ignore */ }
+}
+
+function replayClass(el, cls) {   // (re)start a CSS animation that is driven by a class
+  if (!el) return;
+  el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls);
+}
+function bumpPoints() { if (!reducedMotion()) replayClass($("#points-badge"), "bump"); }
+function shake(el) { if (!reducedMotion()) replayClass(el, "shake"); }
+// A small "+10" that floats up from the answer and fades away.
+function floatPoints(anchor, pts) {
+  if (reducedMotion() || !pts) return;
+  const r = (anchor || $("#points-badge")).getBoundingClientRect();
+  const el = document.createElement("div");
+  el.className = "float-pts";
+  el.textContent = "+" + pts;
+  el.style.left = (r.left + r.width / 2) + "px";
+  el.style.top = r.top + "px";
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 900);
+}
+
+// A small message at the bottom (badge / level-up). Quiet, so it shows even with celebrations off.
+let toastTimer = null;
+function toast(msg) {
+  let t = $("#toast");
+  if (!t) {
+    t = document.createElement("div");
+    t.id = "toast"; t.setAttribute("role", "status"); t.setAttribute("aria-live", "polite");
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  replayClass(t, "show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2600);
+}
+
+// ---------- Big celebrations (milestones only; short and light) ----------
 const CZ_COLORS = ["#d7141a", "#11457e", "#ffcc33", "#2e9e5b", "#ffffff", "#ff6ec7", "#00d4ff"];
 const EMOJI_SETS = [
   ["🎉", "✨", "🎊", "⭐"],
@@ -350,6 +399,7 @@ const EMOJI_SETS = [
   ["🔥", "⚡", "💯", "🚀"],
   ["🦔", "🍺", "🥨", "🏰"] // playful Czech-ish
 ];
+const pick = a => a[Math.floor(Math.random() * a.length)];
 
 function ctxSetup() {
   const canvas = $("#confetti");
@@ -357,96 +407,105 @@ function ctxSetup() {
   canvas.width = innerWidth; canvas.height = innerHeight;
   return { canvas, ctx };
 }
-
-// 1) Classic falling confetti squares
-function celebrateConfetti() {
+let fxToken = 0;   // a newer celebration cancels an older one that is still running
+function runFx(frames, step) {
   const { canvas, ctx } = ctxSetup();
-  const parts = Array.from({ length: 140 }, () => ({
-    x: Math.random() * canvas.width, y: -20 - Math.random() * canvas.height * 0.3,
-    r: 4 + Math.random() * 6, c: CZ_COLORS[Math.floor(Math.random() * CZ_COLORS.length)],
-    vy: 2 + Math.random() * 4, vx: -2 + Math.random() * 4, a: Math.random() * Math.PI, spin: -0.2 + Math.random() * 0.4
-  }));
-  let f = 0;
+  const tok = ++fxToken; let f = 0;
   (function loop() {
+    if (tok !== fxToken) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    parts.forEach(p => {
-      p.y += p.vy; p.x += p.vx; p.a += p.spin;
-      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ctx.fillStyle = p.c;
-      ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 1.6); ctx.restore();
-    });
-    if (++f < 130) requestAnimationFrame(loop); else ctx.clearRect(0, 0, canvas.width, canvas.height);
+    step(ctx, f);
+    if (++f < frames) requestAnimationFrame(loop); else ctx.clearRect(0, 0, canvas.width, canvas.height);
   })();
 }
 
-// 2) Emoji rain falling from the top
+// 1) Confetti squares (about 1 second)
+function celebrateConfetti() {
+  const w = innerWidth, h = innerHeight;
+  const parts = Array.from({ length: 70 }, () => ({
+    x: Math.random() * w, y: -20 - Math.random() * h * 0.15,
+    r: 4 + Math.random() * 5, c: pick(CZ_COLORS),
+    vy: 5 + Math.random() * 5, vx: -2 + Math.random() * 4, a: Math.random() * Math.PI, spin: -0.2 + Math.random() * 0.4
+  }));
+  runFx(70, ctx => parts.forEach(p => {
+    p.y += p.vy; p.x += p.vx; p.a += p.spin;
+    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ctx.fillStyle = p.c;
+    ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 1.6); ctx.restore();
+  }));
+}
+// 2) Emoji rain
 function celebrateEmojiRain() {
-  const { canvas, ctx } = ctxSetup();
-  const set = EMOJI_SETS[Math.floor(Math.random() * EMOJI_SETS.length)];
-  const parts = Array.from({ length: 60 }, () => ({
-    x: Math.random() * canvas.width, y: -40 - Math.random() * 120,
-    e: set[Math.floor(Math.random() * set.length)], s: 24 + Math.random() * 22,
+  const w = innerWidth, set = pick(EMOJI_SETS);
+  const parts = Array.from({ length: 28 }, () => ({
+    x: Math.random() * w, y: -40 - Math.random() * 100, e: pick(set), s: 24 + Math.random() * 20,
     vy: 7 + Math.random() * 5, vx: -1 + Math.random() * 2, a: Math.random() * Math.PI, spin: -0.1 + Math.random() * 0.2
   }));
-  let f = 0;
-  (function loop() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    parts.forEach(p => {
-      p.y += p.vy; p.x += p.vx; p.a += p.spin;
-      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a);
-      ctx.font = p.s + "px serif"; ctx.textAlign = "center"; ctx.fillText(p.e, 0, 0); ctx.restore();
-    });
-    if (++f < 100) requestAnimationFrame(loop); else ctx.clearRect(0, 0, canvas.width, canvas.height);
-  })();
+  runFx(62, ctx => parts.forEach(p => {
+    p.y += p.vy; p.x += p.vx; p.a += p.spin;
+    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a);
+    ctx.font = p.s + "px serif"; ctx.textAlign = "center"; ctx.fillText(p.e, 0, 0); ctx.restore();
+  }));
 }
-
-// 3) Firework burst from the center
+// 3) Firework burst
 function celebrateFirework() {
-  const { canvas, ctx } = ctxSetup();
-  const cx = canvas.width / 2, cy = canvas.height * 0.4;
-  const parts = Array.from({ length: 90 }, (_, i) => {
-    const ang = (i / 90) * Math.PI * 2, sp = 3 + Math.random() * 6;
-    return { x: cx, y: cy, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, c: CZ_COLORS[Math.floor(Math.random() * CZ_COLORS.length)], r: 3 + Math.random() * 3 };
+  const cx = innerWidth / 2, cy = innerHeight * 0.4, N = 60, FR = 52;
+  const parts = Array.from({ length: N }, (_, i) => {
+    const ang = (i / N) * Math.PI * 2, sp = 3 + Math.random() * 6;
+    return { x: cx, y: cy, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, c: pick(CZ_COLORS), r: 3 + Math.random() * 3 };
   });
-  let f = 0;
-  (function loop() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  runFx(FR, (ctx, f) => {
     parts.forEach(p => {
       p.x += p.vx; p.y += p.vy; p.vy += 0.08; p.vx *= 0.98; p.vy *= 0.98;
-      ctx.globalAlpha = Math.max(0, 1 - f / 90); ctx.fillStyle = p.c;
+      ctx.globalAlpha = Math.max(0, 1 - f / FR); ctx.fillStyle = p.c;
       ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
     });
     ctx.globalAlpha = 1;
-    if (++f < 90) requestAnimationFrame(loop); else ctx.clearRect(0, 0, canvas.width, canvas.height);
-  })();
+  });
 }
-
-// 4) Emojis floating UP from the bottom (balloons/stars vibe)
+// 4) Emojis floating up
 function celebrateRise() {
-  const { canvas, ctx } = ctxSetup();
-  const set = EMOJI_SETS[Math.floor(Math.random() * EMOJI_SETS.length)];
-  const parts = Array.from({ length: 26 }, () => ({
-    x: Math.random() * canvas.width, y: canvas.height + 20 + Math.random() * 80,
-    e: set[Math.floor(Math.random() * set.length)], s: 26 + Math.random() * 24,
-    vy: -(5 + Math.random() * 4), drift: -0.6 + Math.random() * 1.2, a: 0, sway: Math.random() * Math.PI
+  const w = innerWidth, h = innerHeight, set = pick(EMOJI_SETS);
+  const parts = Array.from({ length: 16 }, () => ({
+    x: Math.random() * w, y: h + 20 + Math.random() * 60, e: pick(set), s: 26 + Math.random() * 22,
+    vy: -(5 + Math.random() * 4), drift: -0.6 + Math.random() * 1.2, sway: Math.random() * Math.PI
   }));
-  let f = 0;
-  (function loop() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    parts.forEach(p => {
-      p.sway += 0.05; p.y += p.vy; p.x += Math.sin(p.sway) * 0.8 + p.drift;
-      ctx.save(); ctx.translate(p.x, p.y); ctx.font = p.s + "px serif"; ctx.textAlign = "center"; ctx.fillText(p.e, 0, 0); ctx.restore();
-    });
-    if (++f < 105) requestAnimationFrame(loop); else ctx.clearRect(0, 0, canvas.width, canvas.height);
-  })();
+  runFx(70, ctx => parts.forEach(p => {
+    p.sway += 0.05; p.y += p.vy; p.x += Math.sin(p.sway) * 0.8 + p.drift;
+    ctx.save(); ctx.translate(p.x, p.y); ctx.font = p.s + "px serif"; ctx.textAlign = "center"; ctx.fillText(p.e, 0, 0); ctx.restore();
+  }));
 }
 
 const CELEBRATIONS = [celebrateConfetti, celebrateEmojiRain, celebrateFirework, celebrateRise];
-// Pick a random celebration each time for variety.
+// Plays one random celebration — unless the player switched celebrations off.
 function celebrate() {
-  CELEBRATIONS[Math.floor(Math.random() * CELEBRATIONS.length)]();
+  if (!celebrationsOn()) return;
+  pick(CELEBRATIONS)();
 }
-// Keep the old name working everywhere it's already called.
-const confetti = celebrate;
+
+// ---------- Milestones: the only moments that get a big celebration ----------
+let knownBadges = null, knownLevel = null;
+function initMilestones() {          // called after login, so badges you already have never "fire"
+  knownBadges = new Set(BADGES.filter(b => b.test()).map(b => b.id));
+  knownLevel = currentLevel().name;
+}
+function checkMilestones() {
+  if (!knownBadges) { initMilestones(); return; }
+  const msgs = [];
+  for (const b of BADGES) {
+    if (b.test() && !knownBadges.has(b.id)) { knownBadges.add(b.id); msgs.push(`🏅 New badge: ${b.name}`); }
+  }
+  const lvl = currentLevel().name;
+  if (lvl !== knownLevel) { knownLevel = lvl; msgs.push(`⬆️ New level: ${lvl}`); }
+  if (msgs.length) { toast(msgs.join("  ·  ")); celebrate(); }
+}
+// 1st place: celebrate when you TAKE the lead since you last looked — not every time you open the board.
+function checkTookFirst(mode, leaderName, boardSize, hasPoints) {
+  const key = `cz_lead_${mode}_${State.name.trim().toLowerCase()}`;
+  const was = localStorage.getItem(key);
+  const isLeader = hasPoints && boardSize > 1 && leaderName === State.name;
+  try { localStorage.setItem(key, isLeader ? "1" : "0"); } catch (e) { /* ignore */ }
+  if (isLeader && was === "0") { toast("👑 You're in first place!"); celebrate(); }
+}
 
 // ---------- Lesson chips ----------
 function lessonChips() {
@@ -561,6 +620,16 @@ function renderHome() {
     <h3 style="margin:18px 0 10px">🏅 Badges</h3>
     <div class="card"><div class="badges">${badgeHtml}</div></div>
 
+    <h3 style="margin:18px 0 10px">⚙️ Settings</h3>
+    <div class="card setting-row">
+      <div class="setting-text">
+        <div class="setting-title">🎉 Celebrations: <span id="set-state"></span></div>
+        <div class="subtle">Confetti only for big moments: a new badge, a new level, a great test or taking 1st place.</div>
+        <div class="subtle" id="set-note"></div>
+      </div>
+      <button type="button" class="switch" id="set-celebrate" role="switch" aria-label="Celebrations" aria-checked="false"><span class="knob"></span></button>
+    </div>
+
     <h3 style="margin:18px 0 4px">📚 Lessons</h3>
     <div class="subtle" style="margin-bottom:10px">Tap a lesson to study it</div>
     <div class="card lesson-list">${lessonProgress}</div>
@@ -568,6 +637,17 @@ function renderHome() {
   screenEl().querySelectorAll(".tile").forEach(t => t.onclick = () => go(t.dataset.go));
   screenEl().querySelectorAll(".lesson-row").forEach(r => r.onclick = () => { setLesson(r.dataset.lesson); go("flashcards"); });
   $("#home-review").onclick = () => go("review");
+  const sw = $("#set-celebrate");
+  const paintSwitch = () => {
+    const on = celebrationsOn();
+    sw.setAttribute("aria-checked", String(on));
+    sw.classList.toggle("on", on);
+    $("#set-state").textContent = on ? "On" : "Off";
+    $("#set-note").textContent = reducedMotion() && !localStorage.getItem("cz_celebrate")
+      ? "Your phone is set to reduce motion, so this starts off." : "";
+  };
+  paintSwitch();
+  sw.onclick = () => { setCelebrations(!celebrationsOn()); paintSwitch(); if (celebrationsOn()) celebrate(); };
   $("#newest-test").onclick = () => { setLesson(newest.id); go("test"); };
   $("#newest-cards").onclick = () => { setLesson(newest.id); go("flashcards"); };
 }
@@ -617,8 +697,8 @@ function drawFlashcard() {
   $("#fc-known").onclick = () => {
     $("#fc-known").disabled = true;
     $("#fc-known").dataset.used = "1";
-    const { wasNew } = award(c.id);
-    if (wasNew) confetti();
+    const { pts } = award(c.id);
+    floatPoints($("#fc-known"), pts);
     if (fcIndex < fcPool.length - 1) fcIndex++;
     drawFlashcard();
   };
@@ -670,11 +750,11 @@ function nextQuiz() {
       screenEl().querySelectorAll(".option").forEach(b => b.disabled = true);
       const correct = btn.dataset.id === q.id;
       if (correct) {
-        btn.classList.add("correct");
+        btn.classList.add("correct", "pop");
         const { pts } = award(q.id);
+        floatPoints(btn, pts);
         $("#q-fb").className = "feedback good";
-        $("#q-fb").textContent = `Správně! +${pts} ✨`;
-        confetti();
+        $("#q-fb").textContent = `+${pts} ✨`;
       } else {
         btn.classList.add("wrong");
         screenEl().querySelector(`.option[data-id="${q.id}"]`).classList.add("correct");
@@ -747,14 +827,16 @@ function nextTyping() {
       const { pts } = award(q.id, revealed >= 2 ? PTS_REPEAT : undefined);
       if (revealed >= 2) recordResult(q.id, false); // needed help → review it again soon
       $("#type-fb").className = "feedback good";
-      $("#type-fb").textContent = `Perfect! ${q.cz} +${pts} ✨`;
-      confetti();
+      $("#type-fb").textContent = `${q.cz} · +${pts} ✨`;
+      input.classList.add("ok");
+      floatPoints(input, pts);
       $("#type-check").disabled = true; input.disabled = true;
       later(nextTyping, 1000);
     } else {
       // Reveal one more letter (progressive guarantee) + show position matches from input
       if (revealed < q.cz.length) revealed++;
       $("#type-hint").innerHTML = maskHint(input.value);
+      shake(input);
       $("#type-fb").className = "feedback bad";
       if (revealed >= q.cz.length) {
         $("#type-fb").textContent = "Here's the whole word — type it to continue!";
@@ -812,11 +894,12 @@ function onMatchClick(el) {
     matchSel.classList.add("done"); el.classList.add("done");
     matchSel.classList.remove("sel");
     const { pts } = award(el.dataset.id);
+    floatPoints(el, pts);
     matchSel = null; matchDone++;
     $("#match-fb").className = "feedback good";
-    $("#match-fb").textContent = `Match! +${pts} ✨`;
+    $("#match-fb").textContent = `+${pts} ✨`;
     if (matchDone === matchTotal) {
-      confetti();
+      celebrate();
       $("#match-fb").textContent = "Round complete! 🎉";
       later(newMatchRound, 1100);
     }
@@ -865,11 +948,11 @@ function nextSentence() {
     screenEl().querySelectorAll(".option").forEach(b => b.disabled = true);
     const correct = btn.dataset.id === q.id;
     if (correct) {
-      btn.classList.add("correct");
+      btn.classList.add("correct", "pop");
       const { pts } = award(q.id);
+      floatPoints(btn, pts);
       $("#s-fb").className = "feedback good";
-      $("#s-fb").textContent = `Správně! +${pts} ✨`;
-      confetti();
+      $("#s-fb").textContent = `+${pts} ✨`;
     } else {
       btn.classList.add("wrong");
       [...screenEl().querySelectorAll(".option")].find(b => b.dataset.id === q.id).classList.add("correct");
@@ -942,11 +1025,11 @@ function nextGrammarQ() {
       screenEl().querySelectorAll(".option").forEach(b => b.disabled = true);
       const correct = btn.dataset.val === q.a;
       if (correct) {
-        btn.classList.add("correct");
+        btn.classList.add("correct", "pop");
         const { pts } = award(q.id);
+        floatPoints(btn, pts);
         $("#g-fb").className = "feedback good";
-        $("#g-fb").innerHTML = `Správně! +${pts} ✨${q.hint ? `<div class="subtle" style="font-weight:400;margin-top:6px">${q.hint}</div>` : ""}`;
-        confetti();
+        $("#g-fb").innerHTML = `+${pts} ✨${q.hint ? `<div class="subtle" style="font-weight:400;margin-top:6px">${q.hint}</div>` : ""}`;
       } else {
         btn.classList.add("wrong");
         [...screenEl().querySelectorAll(".option")].find(b => b.dataset.val === q.a).classList.add("correct");
@@ -991,14 +1074,16 @@ function nextGrammarQ() {
         const { pts } = award(q.id, gRevealed >= 2 ? PTS_REPEAT : undefined);
         if (gRevealed >= 2) recordResult(q.id, false);
         $("#g-fb").className = "feedback good";
-        $("#g-fb").innerHTML = `Perfect! ${q.a} +${pts} ✨${q.hint ? `<div class="subtle" style="font-weight:400;margin-top:6px">${q.hint}</div>` : ""}`;
-        confetti();
+        $("#g-fb").innerHTML = `${q.a} · +${pts} ✨${q.hint ? `<div class="subtle" style="font-weight:400;margin-top:6px">${q.hint}</div>` : ""}`;
+        input.classList.add("ok");
+        floatPoints(input, pts);
         $("#g-check").style.display = "none"; input.disabled = true;
         $("#g-next").innerHTML = `<button class="btn-primary" id="g-next-btn">Next ▶</button>`;
         $("#g-next-btn").onclick = nextGrammarQ;
       } else {
         if (gRevealed < q.a.length) gRevealed++;
         $("#g-hint").innerHTML = gMask(input.value);
+        shake(input);
         $("#g-fb").className = "feedback bad";
         $("#g-fb").textContent = gRevealed >= q.a.length
           ? "Here's the whole word — type it to continue!"
@@ -1074,16 +1159,16 @@ function drawRound() {
     </div>`;
 
   let answered = false;
-  const finish = correct => {
+  const finish = (correct, anchor) => {
     if (answered) return;
     answered = true;
     const fb = $("#r-fb");
     if (correct) {
       const { pts } = award(q.id);
+      floatPoints(anchor, pts);
       round.right++;
       fb.className = "feedback good";
-      fb.innerHTML = `Správně! +${pts} ✨`;
-      confetti();
+      fb.innerHTML = `+${pts} ✨`;
     } else {
       markWrong(q.id);
       round.missed.push({ prompt: q.prompt, answer: q.answer });
@@ -1103,15 +1188,17 @@ function drawRound() {
       all.forEach(b => b.disabled = true);
       const ok = q.options[+btn.dataset.k].ok;
       all[q.options.findIndex(o => o.ok)].classList.add("correct");
-      if (!ok) btn.classList.add("wrong");
-      finish(ok);
+      if (ok) btn.classList.add("pop"); else btn.classList.add("wrong");
+      finish(ok, btn);
     });
   } else {
     const input = $("#r-in");
     const check = () => {
       if (answered || !input.value.trim()) return;
       input.disabled = true; $("#r-check").style.display = "none";
-      finish(normalize(input.value) === normalize(q.answer));
+      const okT = normalize(input.value) === normalize(q.answer);
+      if (okT) input.classList.add("ok"); else { input.classList.add("no"); shake(input); }
+      finish(okT, input);
     };
     $("#r-check").onclick = check;
     input.onkeydown = e => { if (e.key === "Enter") check(); };
@@ -1124,7 +1211,7 @@ function drawRoundSummary() {
   const n = round.qs.length, s = round.right, pct = s / n;
   const emoji = pct === 1 ? "🏆" : pct >= 0.8 ? "🎉" : pct >= 0.5 ? "💪" : "📚";
   const msg = pct === 1 ? "Perfect score!" : pct >= 0.8 ? "Great job!" : pct >= 0.5 ? "Good effort — keep going!" : "Keep practising — you'll get there!";
-  if (pct >= 0.8) confetti();
+  if (round.kind === "test" ? pct >= 0.8 : (pct === 1 && n >= 5)) celebrate();
   const missed = round.missed.length
     ? `<div class="card"><h3>Words to practise</h3>${round.missed.map(m =>
         `<div class="missed-row"><div>${m.prompt}</div><div class="subtle">→ ${m.answer}</div></div>`).join("")}
@@ -1306,8 +1393,8 @@ async function renderRank() {
     screenEl().querySelectorAll(".rank-bar").forEach(b => { b.style.width = b.dataset.w; });
   });
 
-  // Celebrate if the current player is #1
-  if (!nobodyYet && leader.name === State.name) confetti();
+  // Celebrate only when you take first place (not every time you look at the board)
+  checkTookFirst(weekly ? "week" : "all", leader.name, list.length, !nobodyYet);
 }
 
 // =============================================================
@@ -1351,6 +1438,7 @@ async function startApp() {
   await apiLoadPlayer(State.name);
   localStorage.setItem("cz_name", State.name); // saved spelling (e.g. "goksu" → "Goksu")
   updateTopbar();
+  initMilestones();
   document.querySelectorAll(".tab").forEach(t => t.onclick = () => go(t.dataset.screen));
   go("home");
 }
